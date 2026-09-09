@@ -1,9 +1,7 @@
-__pycache__/
-*.py[cod]
-*.env
+cat > .gitignore << 'EOF'
+node_modules/
 .env
-venv/
-.venv/
-*.pkl
-*.csv
 .DS_Store
+*.log
+npm-debug.log*
+EOF
