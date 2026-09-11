@@ -1,10 +1,8 @@
-import "dotenv/config";
 import Groq from "groq-sdk";
 import { createInterface } from "readline";
 import { readFileSync } from "fs";
+import chalk from "chalk";
 import { config } from "./config.js";
-
-
 
 const groq = new Groq({
   apiKey: config.groqApiKey
@@ -26,7 +24,7 @@ Rules:
 - Do not invent rules or information.
 - If the knowledge does not contain enough information, say so clearly.
 - Give simple and professional answers.
-- Remind the user to verify important matters with official government rules.`
+- Remind the user to verify important matters with the applicable official government rules.`
   }
 ];
 
@@ -39,7 +37,7 @@ console.log("GovAssist started.");
 console.log("Type 'exit' to quit.\n");
 
 function askQuestion() {
-  readline.question("You: ", async (question) => {
+  readline.question(chalk.yellow("You: "), async (question) => {
     if (question.toLowerCase() === "exit") {
       readline.close();
       return;
@@ -57,15 +55,16 @@ function askQuestion() {
       });
 
       const answer = response.choices[0].message.content;
-      console.log(`\nGovAssist: ${answer}\n`);
+
+      console.log(chalk.green(`\nGovAssist: ${answer}\n`));
 
       conversationHistory.push({
         role: "assistant",
         content: answer
       });
     } catch (error) {
-  console.log("\nError:", error.message, "\n");
-}
+      console.log(chalk.red("\nError: Unable to get a response from Groq.\n"));
+    }
 
     askQuestion();
   });
