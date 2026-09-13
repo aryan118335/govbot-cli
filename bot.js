@@ -33,18 +33,19 @@ const readline = createInterface({
   output: process.stdout
 });
 
-console.log("GovAssist started.");
+console.log(chalk.cyan(`
+========================================
+              GOVASSIST
+       Government HR Assistant
+========================================
+`));
+
+console.log("Ask questions about:");
+console.log("Leave Rules, Transfers, MACP, GPF, LTC");
 console.log("Type /help to see available commands.\n");
 
 function askQuestion() {
   readline.question(chalk.yellow("You: "), async (question) => {
-
-    if (question.trim() === "") {
-      console.log(chalk.red("\nPlease enter a question.\n"));
-      askQuestion();
-      return;
-    }
-
     if (question.toLowerCase() === "/quit") {
       readline.close();
       return;
@@ -72,12 +73,20 @@ Available commands:
       return;
     }
 
+    if (question.trim() === "") {
+      console.log(chalk.red("\nPlease enter a question.\n"));
+      askQuestion();
+      return;
+    }
+
     conversationHistory.push({
       role: "user",
       content: question
     });
 
     try {
+      console.log(chalk.cyan("\nGovAssist is thinking...\n"));
+
       const response = await groq.chat.completions.create({
         model: config.model,
         messages: conversationHistory
@@ -85,13 +94,12 @@ Available commands:
 
       const answer = response.choices[0].message.content;
 
-      console.log(chalk.green(`\nGovAssist: ${answer}\n`));
+      console.log(chalk.green(`GovAssist: ${answer}\n`));
 
       conversationHistory.push({
         role: "assistant",
         content: answer
       });
-
     } catch (error) {
       console.log(
         chalk.red(
