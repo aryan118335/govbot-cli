@@ -10,10 +10,9 @@ const groq = new Groq({
 
 const knowledge = readFileSync("./knowledge.txt", "utf-8");
 
-const conversationHistory = [
-  {
-    role: "system",
-    content: `You are GovAssist, an AI assistant for Indian government employees.
+const systemMessage = {
+  role: "system",
+  content: `You are GovAssist, an AI assistant for Indian government employees.
 
 Use the following HR knowledge to answer questions:
 
@@ -25,8 +24,9 @@ Rules:
 - If the knowledge does not contain enough information, say so clearly.
 - Give simple and professional answers.
 - Remind the user to verify important matters with the applicable official government rules.`
-  }
-];
+};
+
+const conversationHistory = [systemMessage];
 
 const readline = createInterface({
   input: process.stdin,
@@ -34,12 +34,35 @@ const readline = createInterface({
 });
 
 console.log("GovAssist started.");
-console.log("Type 'exit' to quit.\n");
+console.log("Type /help to see available commands.\n");
 
 function askQuestion() {
   readline.question(chalk.yellow("You: "), async (question) => {
-    if (question.toLowerCase() === "exit") {
+    if (question.toLowerCase() === "/quit") {
       readline.close();
+      return;
+    }
+
+    if (question.toLowerCase() === "/clear") {
+      conversationHistory.length = 0;
+      conversationHistory.push(systemMessage);
+
+      console.log(chalk.green("\nConversation cleared.\n"));
+
+      askQuestion();
+      return;
+    }
+
+    if (question.toLowerCase() === "/help") {
+      console.log(`
+Available commands:
+
+/help   - Show available commands
+/clear  - Clear conversation history
+/quit   - Exit GovAssist
+`);
+
+      askQuestion();
       return;
     }
 
