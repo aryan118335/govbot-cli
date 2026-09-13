@@ -45,7 +45,15 @@ console.log("Leave Rules, Transfers, MACP, GPF, LTC");
 console.log("Type /help to see available commands.\n");
 
 function askQuestion() {
-  readline.question(chalk.yellow("You: "), async (question) => {
+  readline.question(chalk.yellow("You: "), async (input) => {
+    const question = input.trim();
+
+    if (question === "") {
+      console.log(chalk.red("\nPlease enter a question.\n"));
+      askQuestion();
+      return;
+    }
+
     if (question.toLowerCase() === "/quit") {
       readline.close();
       return;
@@ -73,12 +81,6 @@ Available commands:
       return;
     }
 
-    if (question.trim() === "") {
-      console.log(chalk.red("\nPlease enter a question.\n"));
-      askQuestion();
-      return;
-    }
-
     conversationHistory.push({
       role: "user",
       content: question
@@ -100,12 +102,29 @@ Available commands:
         role: "assistant",
         content: answer
       });
+
     } catch (error) {
-      console.log(
-        chalk.red(
-          "\nSorry, I'm unable to connect to the AI service right now. Please try again later.\n"
-        )
-      );
+      if (error.status === 401) {
+        console.log(
+          chalk.red("\nError: Invalid Groq API key. Please check your .env file.\n")
+        );
+      } else if (error.status === 429) {
+        console.log(
+          chalk.red("\nError: Rate limit exceeded. Please wait a moment and try again.\n")
+        );
+      } else if (
+        error.code === "ENOTFOUND" ||
+        error.code === "ECONNREFUSED" ||
+        error.code === "ETIMEDOUT"
+      ) {
+        console.log(
+          chalk.red("\nError: Network connection failed. Please check your internet connection.\n")
+        );
+      } else {
+        console.log(
+          chalk.red("\nError: Unable to get a response from the AI service.\n")
+        );
+      }
     }
 
     askQuestion();
