@@ -38,6 +38,13 @@ console.log("Type /help to see available commands.\n");
 
 function askQuestion() {
   readline.question(chalk.yellow("You: "), async (question) => {
+
+    if (question.trim() === "") {
+      console.log(chalk.red("\nPlease enter a question.\n"));
+      askQuestion();
+      return;
+    }
+
     if (question.toLowerCase() === "/quit") {
       readline.close();
       return;
@@ -48,7 +55,6 @@ function askQuestion() {
       conversationHistory.push(systemMessage);
 
       console.log(chalk.green("\nConversation cleared.\n"));
-
       askQuestion();
       return;
     }
@@ -85,8 +91,13 @@ Available commands:
         role: "assistant",
         content: answer
       });
+
     } catch (error) {
-      console.log(chalk.red("\nError: Unable to get a response from Groq.\n"));
+      console.log(
+        chalk.red(
+          "\nSorry, I'm unable to connect to the AI service right now. Please try again later.\n"
+        )
+      );
     }
 
     askQuestion();
